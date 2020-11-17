@@ -1,7 +1,7 @@
 
 <p align="center">
   <img width="200"
-    src="https://raw.githubusercontent.com/lubiedo/momo/master/momo.png" />
+    src="https://raw.githubusercontent.com/lubiedo/momo/main/momo.png" />
 </p>
 
 # momo
