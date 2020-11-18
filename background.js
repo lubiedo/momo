@@ -1,41 +1,49 @@
 'use strict';
 
-var url_re = /^https*\:\/\//i;
+var momo = {
+   url_re:  /^https*\:\/\//i,
+  do_func:  function (tab, val) {
+              if (this.tab_validate(tab))
+                if (val)
+                  chrome.tabs.insertCSS(tab.id, {
+                      code:'html{filter: grayscale(100%);}'}, null);
+                else
+                  chrome.tabs.insertCSS(tab.id, {code:'html{filter: none;}'}, null);
+            },
+  init_storage: function() {
+                  let default_enabled = false;
 
-var do_func = function (tab, val) {
-  if (url_re.test(tab.url) && tab.status === "complete") {
-    //console.log(url_re.test(tab.url), tab.url, val)
-    if (val)
-      chrome.tabs.insertCSS(tab.id, {
-          code:'html{filter: grayscale(100%);}'}, null);
-    else
-      chrome.tabs.insertCSS(tab.id, {code:'html{filter: none;}'}, null);
-  }
-};
+                  /* check if OS is in dark mode */
+                  if (window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    default_enabled = true
 
-var init_storage = function() {
-  chrome.storage.sync.set({
-    enabled: false
-  }, null);
-}
-
-var tab_func = function(info){
-  chrome.storage.sync.get('enabled', function(i){
-    chrome.tabs.get(info.tabId, function(tab) {
-      do_func(tab, i['enabled'])
-    })
-  });
+                  chrome.storage.sync.set({
+                    enabled:    default_enabled,
+                  }, null);
+                },
+  tab_func:     function(info){
+                  chrome.storage.sync.get('enabled', function(i){
+                    chrome.tabs.get(info.tabId, function(tab) {
+                      momo.do_func(tab, i['enabled'])
+                    })
+                  });
+                },
+  tab_validate: function(tab) {
+                  return (this.url_re.test(tab.url) &&
+                    tab.status === "complete")
+                }
 }
 
 /* store default */
-chrome.runtime.onInstalled.addListener(init_storage);
+chrome.runtime.onInstalled.addListener(momo.init_storage);
 
-/* chrome.tabs.onUpdated.addListener(do_func); */
+/* on extension button clicked */
 chrome.browserAction.onClicked.addListener(function(tab){
   chrome.storage.sync.get('enabled', function(i){
-    var set = i['enabled'];
+    const set = i['enabled'];
 
-    do_func(tab, !set)
+    momo.do_func(tab, !set)
     chrome.storage.sync.set({enabled: !set}, function() {
       chrome.runtime.error ? console.error(chrome.runtime.lastError) : false ;
     });
@@ -43,7 +51,7 @@ chrome.browserAction.onClicked.addListener(function(tab){
 });
 
 /* on tab switch */
-chrome.tabs.onActivated.addListener(tab_func);
+chrome.tabs.onActivated.addListener(momo.tab_func);
 chrome.tabs.onUpdated.addListener(function(tabId, info, tab) {
-  tab_func({tabId: tabId})
+  momo.tab_func({tabId: tabId})
 });
