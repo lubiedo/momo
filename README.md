@@ -15,8 +15,9 @@ Grayscale all the web!
 
 ## Usage
 Toggle grayscale ON/OFF via the icon on the toolbar or via `Ctrl + Shift + G`.
+To toggle specific tabs use `Ctrl + Shift + H`.
 
 ## Todo
-- [ ] Grayscale only one tab.
+- [x] Grayscale only one tab.
 - [x] Turn ON if dark mode is set system-wide.
 - [ ] Support more protocols other than HTTP(S).
